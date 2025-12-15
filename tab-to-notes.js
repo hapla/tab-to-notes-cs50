@@ -3,9 +3,25 @@ const allNotes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#
 const STRINGS = 6;
 const rising = [[5,0],[4,2],[3,2],[2,1],[1,0],[2,1],[3,0],[5,3],[4,2],[3,0],[2,1],[1,0],[2,1],[3,0]];
 
+function printTab(tab) {
+    const strings = [];
+    for (let s = 0; s < 6; s++) {
+        let string = [];
+        string.push(tuning[s]+'|');
+        for (let pos = 0; pos < tab.length; pos++) {
+            string.push('-');
+        }
+        string.push('-|');
+        string.push('<br/>');
+        strings.push(string.join(""));
+    }
+    return strings.join("");
+}
+
 var tabElem = document.getElementById('tab');
 var tabdsp = document.createElement('pre');
 tabdsp.className = "pre";
-tabdsp.innerHTML = "E A D G B e<br/>- - - - - -";
+//tabdsp.innerHTML = "E A D G B e<br/>- - - - - -";
+tabdsp.innerHTML = printTab(rising);
 tabElem.appendChild(tabdsp);
 
