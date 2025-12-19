@@ -9,6 +9,12 @@ const STRINGS = 6;
 const tabs = [
     ["House of the Rising Sun", [[5,0],[4,2],[3,2],[2,1],[1,0],[2,1],[3,0],[5,3],[4,2],[3,0],[2,1],[1,0],[2,1],[3,0]]],
     ["Race Wish", [[3,9],[3,10],[3,9],[4,12],[3,9],[4,12],[4,10],[4,9],[4,10],[4,9],[5,12],[5,11],[5,12],[4,9],[4,10],[4,12]]],
+    ["Enter Sandman", [[6,0],[5,7],[4,5],[6,6],[6,5],[5,7]]],
+    ["Rudolph the Red-Nosed Reindeer", [[1,0],[1,2],[1,0],[2,2],[1,5],[1,2],[1,0],[1,0],[1,2],[1,0],[1,2],[1,0],[1,5],[1,4]]],
+    ["The Trooper", [[5,7],[5,7],[5,7],[5,5],[6,7],[5,5],[5,5],[5,5],[5,3],[6,5],[5,3],[5,3],[5,3],[5,2],[6,3],[5,5],[4,5],[5,5],[5,7]]],
+    ["Crazy Doctor", [[2,12],[3,13],[4,14],[3,13],[2,12],[2,15],[2,13],[2,12],[1,12],[2,13],[3,14],[4,15],[4,14],[4,12],
+                                     [5,15],[4,14],[3,14],[3,11]]],
+    ["Up Around the Bend", [[4,0],[3,11],[1,10],[2,10],[3,11],[2,10],[5,0],[3,6],[1,5],[2,5],[3,6],[2,5]]],
 ];
 
 // Render the ASCII tab, highlighting current position if given
@@ -67,6 +73,25 @@ function getFretNote(strnum, fretnum) {
     }
 }
 
+function getUncoveredPositions(tabs) {
+    var fretboard = [];
+    for (let s = 0; s < STRINGS; s++) {
+        let string = [];
+        for (let f = 0; f < 24; f++) {
+            string.push(0);
+        }
+        fretboard.push(string);
+    }
+    for (let num in tabs) {
+        for (let pos = 0; pos < tabs[num][1].length; pos++) {
+            let str = tabs[num][1][pos][0];
+            let fret = tabs[num][1][pos][1];
+            fretboard[str-1][fret] = 1;
+        }
+    }
+    console.log(fretboard);
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -76,15 +101,16 @@ var tabdsp = document.createElement('pre');
 tabdsp.className = "pre";
 
 async function test() {
-    let tab = tabs[0][1];
+    let tab = tabs[6][1];
     for (let pos = 0; pos < tab.length; pos++) {
         tabdsp.innerHTML = printTab(tab, pos);
-        console.log(getFretNote(tab[pos][0], tab[pos][1]));
-        await sleep(200);
+        //console.log(getFretNote(tab[pos][0], tab[pos][1]));
+//        await sleep(200);
     }
 };
 
 test();
+getUncoveredPositions(tabs);
 
 tabElem.appendChild(tabdsp);
 
