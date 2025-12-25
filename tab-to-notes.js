@@ -1,5 +1,6 @@
 const tuning = ['e', 'B', 'G', 'D', 'A', 'E'];
-const allNotes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+//const allNotes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+const allNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const STRINGS = 6;
 
 /*
@@ -73,6 +74,21 @@ function getFretNote(strnum, fretnum) {
     }
 }
 
+function getReply(rdiv) {
+    for (let pos = 0; pos < allNotes.length; pos++) {
+        var btn = document.createElement('button');
+        btn.data = allNotes[pos];
+        btn.innerHTML = allNotes[pos];
+        btn.setAttribute('id', allNotes[pos].replace("#", "sharp"));
+        /*
+        btn.onclick = function() {
+            console.log("button ", allNotes[pos]);
+        }
+        */
+        rdiv.appendChild(btn);
+    }
+}
+
 function getUncoveredPositions(tabs) {
     var fretboard = [];
     for (let s = 0; s < STRINGS; s++) {
@@ -104,9 +120,13 @@ async function test() {
     let tab = tabs[6][1];
     for (let pos = 0; pos < tab.length; pos++) {
         tabdsp.innerHTML = printTab(tab, pos);
-        //console.log(getFretNote(tab[pos][0], tab[pos][1]));
+//        console.log(getFretNote(tab[pos][0], tab[pos][1]));
 //        await sleep(200);
     }
+    getReply(document.getElementById('reply'));
+    document.querySelector('#Csharp').addEventListener('click', function() {
+        console.log("Nappi C#");
+    });
 };
 
 test();
