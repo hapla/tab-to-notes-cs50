@@ -60,23 +60,30 @@ function printTab(tab, results, current = -1) {
         var indent = "";
         // Indentation depends on how much space fret number takes
         if (tab[pos][1] > 9) {
-            //indent =  '  ';
-            stats.push('  ');
+            indent =  '  ';
         }
         else {
-            //indent = ' ';
-            stats.push(' ');
+            indent = ' ';
         }
         // 
-        stats.push('<span id="s'+pos+'" style="font-size:0.9em;');
+        stats.push('<span id="s'+pos+'" style="font-size:1.0em;');
         if (pos < results.length) {
             if (results[pos]) {
-                stats.push('color:green;">&#x2713;');
+                stats.push('color:green;">'+indent+'&#x2713;');
             }
             else {
-                stats.push('color:red;">&#x2717;');
-                //stats.push('color:red;">');
-                //stats.push(getFretNote(tab[pos][0], tab[pos][1]));
+                //stats.push('color:red;">&#x2717;');
+                stats.push('color:red;">');
+                var note = getFretNote(tab[pos][0], tab[pos][1]);
+                if (note.length == 2) {
+                    if (indent.length == 2) {
+                        indent = ' ';
+                    }
+                    else {
+                        indent = '';
+                    }
+                }
+                stats.push(indent+note);
             }
         }
         else {
