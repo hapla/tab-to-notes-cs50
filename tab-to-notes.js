@@ -19,11 +19,13 @@ const tabs = [
 ];
 
 // Render the ASCII tab, highlighting current position if given
-function printTab(tab, current = -1) {
+function printTab(tab, results, current = -1) {
     const strings = [];
+    const stats = [];
     const hilit = '<span style="color:yellow;font-weight:bold;">'
     // Go string by string
-    for (let s = 0; s < 6; s++) {
+    console.log('results = ' + results);
+    for (let s = 0; s < STRINGS; s++) {
         let string = [];
         // Print tuning of the string and bar at beginning
         string.push(tuning[s]+'|-');
@@ -52,6 +54,38 @@ function printTab(tab, current = -1) {
         string.push('<br/>');
         strings.push(string.join(""));
     }
+    // Create a row for feedback at bottom
+    stats.push('  ');
+    for (let pos = 0; pos < tab.length; pos++) {
+        var indent = "";
+        // Indentation depends on how much space fret number takes
+        if (tab[pos][1] > 9) {
+            //indent =  '  ';
+            stats.push('  ');
+        }
+        else {
+            //indent = ' ';
+            stats.push(' ');
+        }
+        // 
+        stats.push('<span id="s'+pos+'" style="font-size:0.9em;');
+        if (pos < results.length) {
+            if (results[pos]) {
+                stats.push('color:green;">&#x2713;');
+            }
+            else {
+                stats.push('color:red;">&#x2717;');
+                //stats.push('color:red;">');
+                //stats.push(getFretNote(tab[pos][0], tab[pos][1]));
+            }
+        }
+        else {
+            stats.push('"> ');
+        }
+        stats.push('</span>');
+    }
+    stats.push('<br/>');
+    strings.push(stats.join(""));
     return strings.join("");
 }
 
@@ -74,17 +108,28 @@ function getFretNote(strnum, fretnum) {
     }
 }
 
-function getReply(rdiv) {
+function addReplyButtons(rdiv, rand = false) {
+    let randNotes = [];
+    // Create randomized index for note positions
+    if (rand) {
+        for (let i = 0; i < allNotes.length; i++) {
+            var r;
+            while (randNotes.includes(r = Math.floor(Math.random() * allNotes.length))) {
+            }
+            randNotes.push(r);
+        }
+    }
+    // Create a button for every note in straight or random order
     for (let pos = 0; pos < allNotes.length; pos++) {
         var btn = document.createElement('button');
-        btn.data = allNotes[pos];
-        btn.innerHTML = allNotes[pos];
-        btn.setAttribute('id', allNotes[pos].replace("#", "sharp"));
-        /*
-        btn.onclick = function() {
-            console.log("button ", allNotes[pos]);
+        if (rand) {
+            btn.innerHTML = allNotes[randNotes[pos]];
+            btn.setAttribute('id', allNotes[randNotes[pos]].replace("#", "sharp"));
         }
-        */
+        else {
+            btn.innerHTML = allNotes[pos];
+            btn.setAttribute('id', allNotes[pos].replace("#", "sharp"));
+        }
         rdiv.appendChild(btn);
     }
 }
@@ -112,25 +157,46 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function checkAnswer(tabnum, pos, ans) {
+    let tab = tabs[tabnum][1];
+    let note = getFretNote(tab[pos][0], tab[pos][1]);
+    if (ans == note) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 var tabElem = document.getElementById('tab');
 var tabdsp = document.createElement('pre');
 tabdsp.className = "pre";
 
 async function test() {
-    let tab = tabs[6][1];
-    for (let pos = 0; pos < tab.length; pos++) {
-        tabdsp.innerHTML = printTab(tab, pos);
-//        console.log(getFretNote(tab[pos][0], tab[pos][1]));
-//        await sleep(200);
+    let chkpos = 0;
+    let tabnum = 6;
+    let tab = tabs[tabnum][1];
+    var ans;
+    let results = [];
+    tabdsp.innerHTML = printTab(tab, results, 0);
+    addReplyButtons(document.getElementById('reply'), true);
+    for (let pos = 0; pos < allNotes.length; pos++) {
+        (function() {
+            var idstring = '#' + allNotes[pos].replace("#", "sharp");
+            document.querySelector(idstring).addEventListener('click', function() {
+                console.log("Nappi "+idstring);
+                results.push(checkAnswer(tabnum, chkpos, allNotes[pos]));
+                chkpos++;
+                tabdsp.innerHTML = printTab(tab, results, chkpos);
+            });
+        }());
     }
-    getReply(document.getElementById('reply'));
-    document.querySelector('#Csharp').addEventListener('click', function() {
-        console.log("Nappi C#");
-    });
+    console.log("End of test()");
 };
 
 test();
-getUncoveredPositions(tabs);
+
+//getUncoveredPositions(tabs);
 
 tabElem.appendChild(tabdsp);
 
