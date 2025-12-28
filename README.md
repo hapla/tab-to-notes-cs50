@@ -5,13 +5,17 @@
 
 "Tab to Notes" is a little tool for learning the guitar fretboard. A certain note can be played on multiple positions on a fretboard. Learning the fretboard requires the guitarist to learn those positions. An usual practice is selecting a note, and finding all positions on the fretboard where that note can be found. "Tab to notes" is the reverse of that. It displays a short guitar tab which represents a song as positions on the fretboard i.e. fret numbers on different strings, and asks you to tell which note corresponds to that position.
 
+The tool is implemented as a web application using HTML and JavaScript. It was written using vim editor and Firefox browser with Web Developer Tools.
+
 ## Files:
 
-index.html - Basic structure for the web page
+index.html - Basic structure for the web page.
 
-visuals.css - CSS styling for the web page
+visuals.css - CSS styling for the web page.
 
-tab-to-notes.js - JavaScript code for the web application
+tab-to-notes.js - JavaScript code for the web application.
+
+README.md - This file.
 
 ## Functions:
 

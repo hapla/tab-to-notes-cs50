@@ -7,7 +7,7 @@ const STRINGS = 6;
  * tabs format: ["Name of the Song", [tabdata]]
  * tabdata format: [string number, fretnumber], [string, fret], ...
  */ 
-const tabs = [
+var tabs = [
     ["Enter Sandman", [[6,0],[5,7],[4,5],[6,6],[6,5],[5,7]]],
     ["Up Around the Bend", [[4,0],[3,11],[1,10],[2,10],[3,11],[2,10],[5,0],[3,6],[1,5],[2,5],[3,6],[2,5]]],
     ["House of the Rising Sun", [[5,0],[4,2],[3,2],[2,1],[1,0],[2,1],[3,0],[5,3],[4,2],[3,0],[2,1],[1,0],[2,1],[3,0]]],
@@ -25,6 +25,7 @@ let chkpos = 0;
 let tabnum = 0;
 let tab = tabs[tabnum][1];
 let results = [];
+const origtabslen = tabs.length;
 
 // Render the ASCII tab, highlighting current position if given
 function printTab(tab, results, current = -1) {
@@ -150,11 +151,17 @@ function addReplyButtons(rdiv, rand = false) {
     }
 }
 
-function getUncoveredPositions(tabs) {
+// Find uncovered fretboard positions and create random tabs for them
+function randomizedTabs(tabs) {
     var fretboard = [];
+    const MAXPOS = 24;
+    const MAXTABLEN = 16;
+    // Create a map of fretboard and mark positions included in tabs as 1
+    var covered = 0;
+    var uncovered = 0;
     for (let s = 0; s < STRINGS; s++) {
         let string = [];
-        for (let f = 0; f < 24; f++) {
+        for (let f = 0; f < MAXPOS; f++) {
             string.push(0);
         }
         fretboard.push(string);
@@ -166,7 +173,79 @@ function getUncoveredPositions(tabs) {
             fretboard[str-1][fret] = 1;
         }
     }
-    console.log(fretboard);
+    for (let s = 0; s < STRINGS; s++) {
+        for (let f = 0; f < MAXPOS; f++) {
+            if (fretboard[s][f] == 1) {
+                covered++;
+            }
+            else {
+                uncovered++;
+            }
+        }
+    }
+    //console.log("covered = ", covered, " uncovered = ", uncovered);
+    
+    // No need for random tabs
+    if (uncovered == 0) {
+        return;
+    }
+
+    // Create random MAXTABLEN sized tabs for positions not included in tabs
+    var tabsToCreate = Math.floor(uncovered/MAXTABLEN);
+    var extraTab = 0;
+    if (uncovered > tabsToCreate * MAXTABLEN) {
+        extraTab = 1;
+    }
+    var rtabnum = 0;
+    while (rtabnum < tabsToCreate) {
+        var randTab = [];
+        var count = 0;
+        while (count < MAXTABLEN) {
+            var str = Math.floor(Math.random() * STRINGS);
+            var frt = Math.floor(Math.random() * MAXPOS);
+            var run = 0;
+            do {
+                if (frt < (MAXPOS-1)) {
+                    frt++;
+                }
+                else {
+                    frt = 0;
+                }
+                if (str < (STRINGS-1)) {
+                    str++;
+                }
+                else {
+                    str = 0;
+                }
+                if (run++ > 100) {
+                    break;
+                }
+            } while (fretboard[str][frt] == 1);
+            /*
+            if (fretboard[str][frt] == 1) {
+                console.log("OUT OF RANGE: str = ", str, " frt = ", frt);
+            }
+            */
+            fretboard[str][frt] = 1;
+            randTab.push([str+1, frt]);
+            count++;
+        }
+        tabs.push(["Randomized tab #"+(rtabnum+1)+"/"+(tabsToCreate+extraTab), randTab]);
+        rtabnum++;
+    }
+    // Create additional shorter tab for rest of the positions
+    if (extraTab == 1) {
+        var randTab = [];
+        for (var frt = 0; frt < MAXPOS; frt++) {
+            for (var str = 0; str < STRINGS; str++) {
+                if (fretboard[str][frt] == 0) {
+                    randTab.push([str+1, frt]);
+                    fretboard[str][frt] = 1;
+                }
+            }
+        }
+        tabs.push(["Randomized tab #"+(rtabnum+1)+"/"+(tabsToCreate+extraTab), randTab]);   
+    }
 }
 
 // Check if answer matches the note on current position of tab
@@ -223,9 +302,7 @@ function tabToNotes() {
     }
 };
 
-tabToNotes();
-
-//getUncoveredPositions(tabs);
-
+randomizedTabs(tabs);
 tabElem.appendChild(tabdsp);
 
+tabToNotes(); 
