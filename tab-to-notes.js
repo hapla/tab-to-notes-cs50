@@ -8,23 +8,32 @@ const STRINGS = 6;
  * tabdata format: [string number, fretnumber], [string, fret], ...
  */ 
 const tabs = [
-    ["House of the Rising Sun", [[5,0],[4,2],[3,2],[2,1],[1,0],[2,1],[3,0],[5,3],[4,2],[3,0],[2,1],[1,0],[2,1],[3,0]]],
-    ["Race Wish", [[3,9],[3,10],[3,9],[4,12],[3,9],[4,12],[4,10],[4,9],[4,10],[4,9],[5,12],[5,11],[5,12],[4,9],[4,10],[4,12]]],
     ["Enter Sandman", [[6,0],[5,7],[4,5],[6,6],[6,5],[5,7]]],
+    ["Up Around the Bend", [[4,0],[3,11],[1,10],[2,10],[3,11],[2,10],[5,0],[3,6],[1,5],[2,5],[3,6],[2,5]]],
+    ["House of the Rising Sun", [[5,0],[4,2],[3,2],[2,1],[1,0],[2,1],[3,0],[5,3],[4,2],[3,0],[2,1],[1,0],[2,1],[3,0]]],
     ["Rudolph the Red-Nosed Reindeer", [[1,0],[1,2],[1,0],[2,2],[1,5],[1,2],[1,0],[1,0],[1,2],[1,0],[1,2],[1,0],[1,5],[1,4]]],
     ["The Trooper", [[5,7],[5,7],[5,7],[5,5],[6,7],[5,5],[5,5],[5,5],[5,3],[6,5],[5,3],[5,3],[5,3],[5,2],[6,3],[5,5],[4,5],[5,5],[5,7]]],
+    ["Race Wish", [[3,9],[3,10],[3,9],[4,12],[3,9],[4,12],[4,10],[4,9],[4,10],[4,9],[5,12],[5,11],[5,12],[4,9],[4,10],[4,12]]],
     ["Crazy Doctor", [[2,12],[3,13],[4,14],[3,13],[2,12],[2,15],[2,13],[2,12],[1,12],[2,13],[3,14],[4,15],[4,14],[4,12],
                                      [5,15],[4,14],[3,14],[3,11]]],
-    ["Up Around the Bend", [[4,0],[3,11],[1,10],[2,10],[3,11],[2,10],[5,0],[3,6],[1,5],[2,5],[3,6],[2,5]]],
 ];
+
+var tabElem = document.getElementById('tab');
+var tabdsp = document.createElement('pre');
+tabdsp.className = "pre";
+let chkpos = 0;
+let tabnum = 0;
+let tab = tabs[tabnum][1];
+let results = [];
 
 // Render the ASCII tab, highlighting current position if given
 function printTab(tab, results, current = -1) {
     const strings = [];
     const stats = [];
     const hilit = '<span style="color:yellow;font-weight:bold;">'
-    // Go string by string
-    console.log('results = ' + results);
+    document.getElementById('song').innerHTML = '<i>'+tabs[tabnum][0]+'</i>';
+
+    // Print tab string by string
     for (let s = 0; s < STRINGS; s++) {
         let string = [];
         // Print tuning of the string and bar at beginning
@@ -160,10 +169,7 @@ function getUncoveredPositions(tabs) {
     console.log(fretboard);
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
+// Check if answer matches the note on current position of tab
 function checkAnswer(tabnum, pos, ans) {
     let tab = tabs[tabnum][1];
     let note = getFretNote(tab[pos][0], tab[pos][1]);
@@ -175,33 +181,49 @@ function checkAnswer(tabnum, pos, ans) {
     }
 }
 
-var tabElem = document.getElementById('tab');
-var tabdsp = document.createElement('pre');
-tabdsp.className = "pre";
+// When note button is clicked, check the answer and advance to next note
+const handleNoteButtons = (note) => {
+    return function(event) {
+        if (chkpos < tab.length) {
+            results.push(checkAnswer(tabnum, chkpos, note));
+            chkpos++;
+            tabdsp.innerHTML = printTab(tab, results, chkpos);
+        }
+        if (chkpos == tab.length) {
+            document.getElementById('next').disabled = false;
+        }
+    }
+}
 
-async function test() {
-    let chkpos = 0;
-    let tabnum = 6;
-    let tab = tabs[tabnum][1];
-    var ans;
-    let results = [];
+// Next button advances to the next tab and clears previous answers
+document.querySelector('#next').addEventListener('click', function() {
+    if (tabnum < (tabs.length-1)) {
+        tabnum++;
+    }
+    else {
+        tabnum = 0;
+    }
+    results = [];
+    chkpos = 0;
+    tab = tabs[tabnum][1];
+    document.getElementById('next').disabled = true;
+    tabdsp.innerHTML = printTab(tab, results, 0);
+});
+
+// Initialize, create note buttons
+function tabToNotes() {
+    //var ans;
     tabdsp.innerHTML = printTab(tab, results, 0);
     addReplyButtons(document.getElementById('reply'), true);
+    document.getElementById('next').disabled = true;
+
     for (let pos = 0; pos < allNotes.length; pos++) {
-        (function() {
-            var idstring = '#' + allNotes[pos].replace("#", "sharp");
-            document.querySelector(idstring).addEventListener('click', function() {
-                console.log("Nappi "+idstring);
-                results.push(checkAnswer(tabnum, chkpos, allNotes[pos]));
-                chkpos++;
-                tabdsp.innerHTML = printTab(tab, results, chkpos);
-            });
-        }());
+        var idstring = '#' + allNotes[pos].replace("#", "sharp");
+        document.querySelector(idstring).addEventListener('click', handleNoteButtons(allNotes[pos]));
     }
-    console.log("End of test()");
 };
 
-test();
+tabToNotes();
 
 //getUncoveredPositions(tabs);
 
