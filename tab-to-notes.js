@@ -291,8 +291,9 @@ document.querySelector('#next').addEventListener('click', function() {
 
 // Initialize, create note buttons
 function tabToNotes() {
-    //var ans;
+    tabElem.appendChild(tabdsp);
     tabdsp.innerHTML = printTab(tab, results, 0);
+    randomizedTabs(tabs);
     addReplyButtons(document.getElementById('reply'), true);
     document.getElementById('next').disabled = true;
 
@@ -301,8 +302,5 @@ function tabToNotes() {
         document.querySelector(idstring).addEventListener('click', handleNoteButtons(allNotes[pos]));
     }
 };
-
-randomizedTabs(tabs);
-tabElem.appendChild(tabdsp);
 
 tabToNotes(); 
