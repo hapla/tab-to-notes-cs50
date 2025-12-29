@@ -1,6 +1,9 @@
 # Tab to Notes
 
-### Video Demo: https://youtu.be/KJDhGyIn0jg
+*NOTE: This repository contains my final project for the Harvard CS50x course.
+I don't really know JavaScript so the code is rather crude.*
+
+### Video Demo: <URL>
 
 ## Description:
 
